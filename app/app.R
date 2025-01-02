@@ -92,19 +92,46 @@ ui <- dashboardPage(
     )
   )
 )
+
 query_weather_data <- function(latitude, longitude, date) {
-  json <- request("https://data.tmd.go.th/nwpapi/v1/forecast/location/hourly/at") |>
-    req_auth_bearer_token(TMD_token) |>
-    req_url_query(
-      lat = latitude,
-      lon = longitude,
-      fields = 'cond,tc,rh,rain',
-      date = as.character(date),
-      hour = 0,
-      duration = 24
-    ) |>
-    req_perform() |>
-    resp_body_json()
+  # Add logging
+  log_file <- file.path(tempdir(), "api_debug.log")
+  cat(sprintf("Starting API call at %s\n", Sys.time()), file = log_file)
+  
+  tryCatch({
+    response <- request("https://data.tmd.go.th/nwpapi/v1/forecast/location/hourly/at") |>
+      req_auth_bearer_token(TMD_token) |>
+      req_url_query(
+        lat = latitude,
+        lon = longitude,
+        fields = 'cond,tc,rh,rain',
+        date = as.character(date),
+        hour = 0,
+        duration = 24
+      ) |>
+      req_verbose() |>  # Add verbose output
+      req_error(is_error = function(resp) FALSE) |>  # Don't error on HTTP status
+      req_perform()
+    
+    # Log response details
+    cat(sprintf("\nResponse Status: %d\n", resp_status(response)), file = log_file, append = TRUE)
+    cat(sprintf("Response Headers:\n%s\n", paste(names(resp_headers(response)), resp_headers(response), 
+                                                 sep = ": ", collapse = "\n")), file = log_file, append = TRUE)
+    
+    if (resp_status(response) != 200) {
+      cat(sprintf("\nError Response Body:\n%s\n", resp_body_string(response)), 
+          file = log_file, append = TRUE)
+      stop(sprintf("API returned status code %d", resp_status(response)))
+    }
+    
+    json <- resp_body_json(response)
+    return(json)
+    
+  }, error = function(e) {
+    msg <- conditionMessage(e)
+    cat(sprintf("\nError occurred: %s\n", msg), file = log_file, append = TRUE)
+    stop(msg)
+  })
 }
 
 # Server Definition

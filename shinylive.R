@@ -6,4 +6,4 @@ shinylive::export(appdir = "app",
 
 library(httpuv)
 
-runStaticServer("docs", port = 8080)
+runStaticServer("docs", port = 5184)

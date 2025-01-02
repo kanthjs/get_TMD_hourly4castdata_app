@@ -1,0 +1,12 @@
+name: get_TMD_hourly4castdata_app
+title: get_TMD_hourly4castdata_app
+username: t4qmqq-kanthanawit0jaisong
+account: t4qmqq-kanthanawit0jaisong
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13655951
+bundleId: 9596562
+url: https://t4qmqq-kanthanawit0jaisong.shinyapps.io/get_TMD_hourly4castdata_app/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
